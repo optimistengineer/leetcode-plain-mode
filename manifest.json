@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "LeetCode Plain Mode",
+  "version": "1.0",
+  "description": "Practice LeetCode in a Google-style interview environment — plain editor, no autocomplete, no highlighting",
+  "permissions": ["storage", "scripting", "activeTab"],
+  "host_permissions": ["https://leetcode.com/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://leetcode.com/*"],
+      "css": ["plain-mode.css"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    },
+    {
+      "matches": ["https://leetcode.com/*"],
+      "js": ["content-main.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

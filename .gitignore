@@ -1,0 +1,7 @@
+node_modules/
+.DS_Store
+icons/icon-source.png
+icons/icon-preview.png
+icons/*-old.png
+scripts/
+CLAUDE.md

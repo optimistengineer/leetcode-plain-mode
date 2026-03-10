@@ -1,0 +1,26 @@
+{
+  "name": "leetcode-plain-mode",
+  "version": "1.0.0",
+  "description": "",
+  "main": "background.js",
+  "scripts": {
+    "test": "jest --verbose"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "jest": {
+    "testEnvironment": "node",
+    "transformIgnorePatterns": [
+      "node_modules/(?!@exodus)"
+    ]
+  },
+  "devDependencies": {
+    "@jest/globals": "^30.3.0",
+    "canvas": "^3.2.1",
+    "jest": "^30.3.0",
+    "jsdom": "^28.1.0",
+    "playwright": "^1.58.2"
+  }
+}

@@ -1,0 +1,170 @@
+/* Only active when <html> has the .leetcode-plain-active class.
+   Injected at document_start — takes effect before Monaco renders.
+   Styled to match Google Docs appearance. Adapts to dark/light mode. */
+
+/* ---- Light mode (default): white page, black text, Consolas ---- */
+
+.leetcode-plain-active .monaco-editor,
+.leetcode-plain-active .monaco-editor .overflow-guard,
+.leetcode-plain-active .monaco-editor .monaco-editor-background {
+  background-color: #ffffff !important;
+}
+
+.leetcode-plain-active .monaco-editor,
+.leetcode-plain-active .monaco-editor .view-lines,
+.leetcode-plain-active .monaco-editor .view-line,
+.leetcode-plain-active .monaco-editor .view-line span {
+  color: #000000 !important;
+  font-family: var(--lpm-font-family, Consolas, "Courier New", monospace) !important;
+}
+
+.leetcode-plain-active .monaco-editor [class*="mtk"] {
+  color: #000000 !important;
+}
+
+.leetcode-plain-active .monaco-editor .cursor {
+  background-color: #000000 !important;
+  border-color: #000000 !important;
+  width: 2px !important;
+}
+
+.leetcode-plain-active .monaco-editor .selected-text {
+  background-color: #d2e3fc !important;
+}
+
+/* ---- Dark mode: adapt to LeetCode's dark theme ---- */
+/* LeetCode adds .dark class on <html> in dark mode */
+
+.leetcode-plain-active.dark .monaco-editor,
+.leetcode-plain-active.dark .monaco-editor .overflow-guard,
+.leetcode-plain-active.dark .monaco-editor .monaco-editor-background {
+  background-color: #1e1e1e !important;
+}
+
+.leetcode-plain-active.dark .monaco-editor,
+.leetcode-plain-active.dark .monaco-editor .view-lines,
+.leetcode-plain-active.dark .monaco-editor .view-line,
+.leetcode-plain-active.dark .monaco-editor .view-line span {
+  color: #e0e0e0 !important;
+}
+
+.leetcode-plain-active.dark .monaco-editor [class*="mtk"] {
+  color: #e0e0e0 !important;
+}
+
+.leetcode-plain-active.dark .monaco-editor .cursor {
+  background-color: #e0e0e0 !important;
+  border-color: #e0e0e0 !important;
+}
+
+.leetcode-plain-active.dark .monaco-editor .selected-text {
+  background-color: rgba(51, 144, 255, 0.25) !important;
+}
+
+.leetcode-plain-active.dark .monaco-editor .scrollbar .slider {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+.leetcode-plain-active.dark .monaco-editor .scrollbar .slider:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ---- Left padding ---- */
+/* Hide the margin/gutter entirely */
+.leetcode-plain-active .monaco-editor .margin {
+  width: 0 !important;
+  min-width: 0 !important;
+}
+.leetcode-plain-active .monaco-editor .margin-view-overlays .line-numbers {
+  display: none !important;
+}
+.leetcode-plain-active .monaco-editor .glyph-margin {
+  display: none !important;
+  width: 0 !important;
+}
+
+/* Override Monaco's inline offsets so content doesn't jump when the
+   background script later applies Monaco API options. */
+.leetcode-plain-active .monaco-editor .lines-content {
+  left: 0 !important;
+  padding-left: 24px !important;
+}
+.leetcode-plain-active .monaco-editor .view-overlays {
+  left: 0 !important;
+  padding-left: 24px !important;
+}
+.leetcode-plain-active .monaco-editor .monaco-scrollable-element {
+  left: 0 !important;
+}
+
+/* ---- Scrollbar ---- */
+
+.leetcode-plain-active .monaco-editor .scrollbar .slider {
+  background: rgba(0, 0, 0, 0.15) !important;
+  border-radius: 4px !important;
+}
+.leetcode-plain-active .monaco-editor .scrollbar .slider:hover {
+  background: rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ---- Hide all IDE chrome ---- */
+
+.leetcode-plain-active .monaco-editor .minimap {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .suggest-widget {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .parameter-hints-widget {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .current-line {
+  border: none !important;
+  background: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .view-overlays .current-line {
+  border: none !important;
+  background: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .bracket-match {
+  border: none !important;
+  background: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .lines-content .core-guide {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .selectionHighlight,
+.leetcode-plain-active .monaco-editor .wordHighlight,
+.leetcode-plain-active .monaco-editor .wordHighlightStrong {
+  background: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .codelens-decoration {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .lightbulb-glyph {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .folding {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .hover-contents {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .context-view {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .decorationsOverviewRuler {
+  display: none !important;
+}
