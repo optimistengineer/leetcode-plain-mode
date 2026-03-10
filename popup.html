@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      width: 320px;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #1a1a1a;
+      color: #eff1f6;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      padding: 20px 22px 16px;
+      background: #282828;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid rgba(255, 161, 22, 0.12);
+    }
+    .header-icon {
+      width: 36px;
+      height: 36px;
+      flex-shrink: 0;
+    }
+    .header-icon img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+    .header-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #ffa116;
+      letter-spacing: -0.2px;
+    }
+    .header-sub {
+      font-size: 11px;
+      color: #c0a882;
+      margin-top: 1px;
+    }
+
+    /* ---- Content ---- */
+    .content {
+      padding: 16px 22px 20px;
+    }
+
+    /* ---- Toggle card ---- */
+    .toggle-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #282828;
+      border-radius: 12px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255, 161, 22, 0.1);
+    }
+    .toggle-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .toggle-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .toggle-icon.off {
+      background: #333333;
+    }
+    .toggle-icon.on {
+      background: #3d2e0a;
+    }
+    .toggle-icon svg {
+      transition: stroke 0.2s;
+    }
+    .toggle-label {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #ffffff;
+    }
+    .toggle-desc {
+      font-size: 11px;
+      color: #8a8a8a;
+      margin-top: 1px;
+    }
+
+    /* ---- Switch ---- */
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      flex-shrink: 0;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+    .track {
+      position: absolute;
+      inset: 0;
+      background: #404040;
+      border-radius: 24px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .track::before {
+      content: "";
+      position: absolute;
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      top: 3px;
+      background: #ffffff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+    }
+    input:checked + .track {
+      background: #ffa116;
+    }
+    input:checked + .track::before {
+      transform: translateX(20px);
+    }
+
+    /* ---- Status ---- */
+    .status {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 7px 0;
+      border-radius: 8px;
+      font-size: 11.5px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .status.off {
+      background: #282828;
+      color: #8a8a8a;
+    }
+    .status.on {
+      background: #3d2e0a;
+      color: #ffc14d;
+    }
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+    .status.off .dot { background: #404040; }
+    .status.on .dot { background: #ffa116; }
+
+    /* ---- Separator ---- */
+    .sep {
+      height: 1px;
+      background: rgba(255, 161, 22, 0.12);
+      margin: 14px 0;
+    }
+
+    /* ---- Features ---- */
+    .features-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #7a6a50;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .tag {
+      font-size: 11px;
+      padding: 5px 12px;
+      border-radius: 100px;
+      background: #282828;
+      color: #c0a882;
+      font-weight: 500;
+      border: 1px solid rgba(255, 161, 22, 0.15);
+    }
+
+    /* ---- Tab size setting ---- */
+    .setting-row {
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .setting-label {
+      font-size: 12px;
+      color: #c0a882;
+      font-weight: 500;
+    }
+    .tab-sizes {
+      display: flex;
+      gap: 4px;
+    }
+    .tab-btn {
+      width: 32px;
+      height: 28px;
+      border: 1px solid rgba(255, 161, 22, 0.15);
+      border-radius: 6px;
+      background: #282828;
+      color: #8a8a8a;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: inherit;
+    }
+    .tab-btn:hover {
+      background: #333333;
+      color: #c0c0c0;
+      border-color: rgba(255, 161, 22, 0.3);
+    }
+    .tab-btn.active {
+      background: #ffa116;
+      color: #1a1a1a;
+      border-color: #ffa116;
+    }
+
+    /* ---- Font selector ---- */
+    .font-select {
+      background: #282828;
+      color: #c0a882;
+      border: 1px solid rgba(255, 161, 22, 0.15);
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: inherit;
+      outline: none;
+      transition: all 0.15s;
+    }
+    .font-select:hover {
+      background: #333333;
+      border-color: rgba(255, 161, 22, 0.3);
+    }
+    .font-select:focus {
+      border-color: #ffa116;
+    }
+
+    /* ---- Not on LeetCode ---- */
+    .not-leetcode {
+      text-align: center;
+      padding: 40px 24px;
+    }
+    .not-leetcode svg {
+      margin-bottom: 14px;
+      opacity: 0.35;
+    }
+    .not-leetcode h3 {
+      font-size: 15px;
+      font-weight: 600;
+      color: #eff1f6;
+      margin-bottom: 5px;
+    }
+    .not-leetcode p {
+      font-size: 12.5px;
+      color: #8a8a8a;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="header-icon">
+      <img src="icons/icon48.png" alt="icon">
+    </div>
+    <div>
+      <div class="header-title">LeetCode Plain Mode</div>
+      <div class="header-sub">Google-style interview practice</div>
+    </div>
+  </div>
+
+  <div id="main-content" class="content" style="visibility:hidden;">
+    <div class="toggle-card">
+      <div class="toggle-left">
+        <div class="toggle-icon on" id="toggle-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffa116" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="toggle-svg">
+            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="9" y1="13" x2="15" y2="13"/>
+            <line x1="9" y1="17" x2="13" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <div class="toggle-label">Interview Mode</div>
+          <div class="toggle-desc" id="card-desc">Plain editor, no assists</div>
+
+        </div>
+      </div>
+      <label class="switch">
+        <input type="checkbox" id="toggle" checked>
+        <span class="track"></span>
+      </label>
+    </div>
+
+    <div id="status" class="status on">
+      <span class="dot"></span>
+      <span id="status-text">Interview mode active</span>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="features-title">What changes</div>
+    <div class="features">
+      <span class="tag">No autocomplete</span>
+      <span class="tag">No highlighting</span>
+      <span class="tag">No line numbers</span>
+      <span class="tag">Plain text</span>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Tab size (spaces)</span>
+      <div class="tab-sizes" id="tab-sizes">
+        <button class="tab-btn" data-size="2" tabindex="-1">2</button>
+        <button class="tab-btn" data-size="4" tabindex="-1">4</button>
+        <button class="tab-btn" data-size="8" tabindex="-1">8</button>
+      </div>
+    </div>
+
+    <div class="setting-row">
+      <span class="setting-label">Font</span>
+      <select class="font-select" id="font-select">
+        <option value="sf-mono">SF Mono / Menlo</option>
+        <option value="consolas" selected>Consolas</option>
+      </select>
+    </div>
+  </div>
+
+  <div id="not-leetcode" class="not-leetcode" style="display:none;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#8a8a8a" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="16 18 22 12 16 6"/>
+      <polyline points="8 6 2 12 8 18"/>
+    </svg>
+    <h3>Not on LeetCode</h3>
+    <p>Open a LeetCode problem page<br>to use this extension.</p>
+  </div>
+
+  <div id="contest-mode" class="not-leetcode" style="display:none;">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ffa116" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/>
+      <polyline points="12 6 12 12 16 14"/>
+    </svg>
+    <h3>Contest Mode</h3>
+    <p>Plain mode is auto-disabled<br>during contests. Good luck!</p>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
