@@ -179,12 +179,10 @@ async function applyWithRetry(tabId, enabled, tabSize = 4, fontFamily = "Consola
   for (let i = 0; i < maxAttempts; i++) {
     // If a newer toggle has fired, stop retrying for this stale one
     if (generation >= 0 && generation !== toggleGeneration) return false;
-    const delay = Math.min(500 * Math.pow(1.5, i), 4000); // 500ms, 750ms, 1125ms, ... up to 4s
-    await new Promise((r) => setTimeout(r, delay));
-
-    if (generation >= 0 && generation !== toggleGeneration) return false;
     const success = await applyToTab(tabId, enabled, tabSize, fontFamily);
     if (success) return true;
+    const delay = Math.min(500 * Math.pow(1.5, i), 4000); // 500ms, 750ms, 1125ms, ... up to 4s
+    await new Promise((r) => setTimeout(r, delay));
   }
   return false;
 }

@@ -53,19 +53,27 @@ chrome.storage.onChanged.addListener((changes) => {
   // Forward font changes to the MAIN world content script via CustomEvent
   if (changes.fontFamily && changes.fontFamily.newValue != null && !isContestPage()) {
     applyFontCssVar(changes.fontFamily.newValue);
-    document.dispatchEvent(
-      new CustomEvent("__lpm_update_fontfamily", {
-        detail: changes.fontFamily.newValue,
-      })
-    );
+    chrome.storage.local.get("enabled", (data) => {
+      if (data.enabled !== false) {
+        document.dispatchEvent(
+          new CustomEvent("__lpm_update_fontfamily", {
+            detail: changes.fontFamily.newValue,
+          })
+        );
+      }
+    });
   }
   // Forward tab-size changes to the MAIN world content script via CustomEvent
   if (changes.tabSize && changes.tabSize.newValue != null && !isContestPage()) {
-    document.dispatchEvent(
-      new CustomEvent("__lpm_update_tabsize", {
-        detail: changes.tabSize.newValue,
-      })
-    );
+    chrome.storage.local.get("enabled", (data) => {
+      if (data.enabled !== false) {
+        document.dispatchEvent(
+          new CustomEvent("__lpm_update_tabsize", {
+            detail: changes.tabSize.newValue,
+          })
+        );
+      }
+    });
   }
 });
 
