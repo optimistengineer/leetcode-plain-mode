@@ -171,12 +171,18 @@ async function applyToTab(tabId, enabled, tabSize = 4, fontFamily = "Consolas, '
   }
 }
 
+// Tracks the latest toggle generation so stale retries can bail out
+let toggleGeneration = 0;
+
 // Smart retry — keeps trying until Monaco editors are found or max attempts
-async function applyWithRetry(tabId, enabled, tabSize = 4, fontFamily = "Consolas, 'Courier New', monospace", maxAttempts = 8) {
+async function applyWithRetry(tabId, enabled, tabSize = 4, fontFamily = "Consolas, 'Courier New', monospace", maxAttempts = 8, generation = -1) {
   for (let i = 0; i < maxAttempts; i++) {
+    // If a newer toggle has fired, stop retrying for this stale one
+    if (generation >= 0 && generation !== toggleGeneration) return false;
     const delay = Math.min(500 * Math.pow(1.5, i), 4000); // 500ms, 750ms, 1125ms, ... up to 4s
     await new Promise((r) => setTimeout(r, delay));
 
+    if (generation >= 0 && generation !== toggleGeneration) return false;
     const success = await applyToTab(tabId, enabled, tabSize, fontFamily);
     if (success) return true;
   }
@@ -188,6 +194,7 @@ async function applyWithRetry(tabId, enabled, tabSize = 4, fontFamily = "Consola
 // worker alive) until the async work finishes and sendResponse is called.
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === "toggle") {
+    const gen = ++toggleGeneration;
     chrome.tabs.query({ active: true, currentWindow: true }, async (tabs) => {
       const tab = tabs[0];
       if (tab?.url?.includes("leetcode.com") && !isContestPage(tab.url)) {
@@ -198,7 +205,7 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
           const font = resolveFont(data.fontFamily);
           const success = await applyToTab(tab.id, msg.enabled, tabSize, font);
           if (!success && msg.enabled) {
-            applyWithRetry(tab.id, msg.enabled, tabSize, font);
+            applyWithRetry(tab.id, msg.enabled, tabSize, font, 8, gen);
           }
           sendResponse({ ok: true });
         });

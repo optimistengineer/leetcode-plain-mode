@@ -43,6 +43,9 @@ chrome.storage.onChanged.addListener((changes) => {
   if (changes.enabled) {
     if (changes.enabled.newValue !== false && !isContestPage()) {
       document.documentElement.classList.add("leetcode-plain-active");
+      chrome.storage.local.get("fontFamily", (data) => {
+        applyFontCssVar(data.fontFamily || "consolas");
+      });
     } else {
       document.documentElement.classList.remove("leetcode-plain-active");
     }
@@ -96,10 +99,14 @@ onDomReady(() => {
     }
     if (location.href !== lastUrl) {
       lastUrl = location.href;
+      // Re-attach editor observer for the new page
+      editorObserver.disconnect();
+      watchAttempts = 0;
       if (isContestPage()) {
         document.documentElement.classList.remove("leetcode-plain-active");
         return;
       }
+      watchEditorContainer();
       chrome.storage.local.get(["enabled", "fontFamily"], (data) => {
         if (data.enabled !== false) {
           document.documentElement.classList.add("leetcode-plain-active");
