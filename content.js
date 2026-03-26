@@ -43,6 +43,9 @@ chrome.storage.onChanged.addListener((changes) => {
   if (changes.enabled) {
     if (changes.enabled.newValue !== false && !isContestPage()) {
       document.documentElement.classList.add("leetcode-plain-active");
+      chrome.storage.local.get("fontFamily", (data) => {
+        applyFontCssVar(data.fontFamily || "consolas");
+      });
     } else {
       document.documentElement.classList.remove("leetcode-plain-active");
     }
@@ -50,19 +53,27 @@ chrome.storage.onChanged.addListener((changes) => {
   // Forward font changes to the MAIN world content script via CustomEvent
   if (changes.fontFamily && changes.fontFamily.newValue != null && !isContestPage()) {
     applyFontCssVar(changes.fontFamily.newValue);
-    document.dispatchEvent(
-      new CustomEvent("__lpm_update_fontfamily", {
-        detail: changes.fontFamily.newValue,
-      })
-    );
+    chrome.storage.local.get("enabled", (data) => {
+      if (data.enabled !== false) {
+        document.dispatchEvent(
+          new CustomEvent("__lpm_update_fontfamily", {
+            detail: changes.fontFamily.newValue,
+          })
+        );
+      }
+    });
   }
   // Forward tab-size changes to the MAIN world content script via CustomEvent
   if (changes.tabSize && changes.tabSize.newValue != null && !isContestPage()) {
-    document.dispatchEvent(
-      new CustomEvent("__lpm_update_tabsize", {
-        detail: changes.tabSize.newValue,
-      })
-    );
+    chrome.storage.local.get("enabled", (data) => {
+      if (data.enabled !== false) {
+        document.dispatchEvent(
+          new CustomEvent("__lpm_update_tabsize", {
+            detail: changes.tabSize.newValue,
+          })
+        );
+      }
+    });
   }
 });
 
@@ -96,10 +107,14 @@ onDomReady(() => {
     }
     if (location.href !== lastUrl) {
       lastUrl = location.href;
+      // Re-attach editor observer for the new page
+      editorObserver.disconnect();
+      watchAttempts = 0;
       if (isContestPage()) {
         document.documentElement.classList.remove("leetcode-plain-active");
         return;
       }
+      watchEditorContainer();
       chrome.storage.local.get(["enabled", "fontFamily"], (data) => {
         if (data.enabled !== false) {
           document.documentElement.classList.add("leetcode-plain-active");
