@@ -795,3 +795,176 @@ describe("injected function (Monaco manipulation)", () => {
     delete global.window;
   });
 });
+
+// ═══════════════════════════════════════════════════════════════
+// Bug fix regression tests
+// ═══════════════════════════════════════════════════════════════
+
+// ─── Fix: stale toggle retries cancelled via generation ──────
+
+describe("BUG FIX: toggle generation (stale retry cancellation)", () => {
+  test("rapid toggle OFF cancels pending enable retries", async () => {
+    loadBackground();
+    chrome.tabs.query.mockImplementation((q, cb) =>
+      cb([{ id: 1, url: "https://leetcode.com/problems/test" }])
+    );
+    // All calls fail — retries will keep firing if not cancelled
+    chrome.scripting.executeScript.mockResolvedValue([
+      { result: { success: false, reason: "no monaco" } },
+    ]);
+
+    const msgHandler = chrome._listeners.message[0];
+
+    // Toggle ON — starts retries in background
+    msgHandler({ type: "toggle", enabled: true }, {}, jest.fn());
+
+    // Wait for initial applyToTab + applyWithRetry's first immediate attempt
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // 2 calls: toggle handler's applyToTab + applyWithRetry's first attempt (attempt-first ordering)
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(2);
+
+    // Quickly toggle OFF — should cancel the stale enable retries
+    msgHandler({ type: "toggle", enabled: false }, {}, jest.fn());
+
+    // Wait for the disable's applyToTab
+    await Promise.resolve();
+    await Promise.resolve();
+
+    // 3 calls: +1 for the disable toggle's applyToTab
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(3);
+
+    // Advance timers way past the entire retry schedule
+    // Old behavior: retries from the enable would keep firing
+    await jest.advanceTimersByTimeAsync(40000);
+
+    // No additional calls — stale enable retries were cancelled by generation check
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(3);
+  });
+
+  test("second enable cancels first enable's retries", async () => {
+    loadBackground();
+    chrome.tabs.query.mockImplementation((q, cb) =>
+      cb([{ id: 1, url: "https://leetcode.com/problems/test" }])
+    );
+
+    let callCount = 0;
+    chrome.scripting.executeScript.mockImplementation(() => {
+      callCount++;
+      return Promise.resolve([{ result: { success: false } }]);
+    });
+
+    const msgHandler = chrome._listeners.message[0];
+
+    // First toggle ON (gen=1): handler's applyToTab + applyWithRetry's 1st attempt = 2 calls
+    msgHandler({ type: "toggle", enabled: true }, {}, jest.fn());
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(callCount).toBe(2);
+
+    // Second toggle ON (gen=2): +2 more calls (handler's applyToTab + applyWithRetry's 1st attempt)
+    // First toggle's applyWithRetry is now stale (gen=1 !== toggleGeneration=2)
+    msgHandler({ type: "toggle", enabled: true }, {}, jest.fn());
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(callCount).toBe(4);
+
+    // Advance through full retry schedule
+    await jest.advanceTimersByTimeAsync(40000);
+
+    // Should have: 4 calls so far + at most 7 more retries from second toggle = 11
+    // WITHOUT the fix: first toggle's retries would also continue = 4 + 7 + 7 = 18
+    expect(callCount).toBeLessThanOrEqual(12);
+    // Also verify it's not the broken behavior with double retries
+    expect(callCount).toBeLessThan(18);
+  });
+
+  test("onUpdated retries are not affected by toggle generation", async () => {
+    loadBackground();
+    chrome._storageData.enabled = true;
+    chrome.scripting.executeScript
+      .mockResolvedValueOnce([{ result: { success: false } }])
+      .mockResolvedValue([{ result: { success: true, editorCount: 1 } }]);
+
+    // Trigger via onUpdated (no generation — should not be cancelled by toggles)
+    const handler = chrome._listeners.tabsUpdated[0];
+    handler(1, { status: "complete" }, { url: "https://leetcode.com/problems/test" });
+
+    // Now toggle — this increments toggleGeneration
+    chrome.tabs.query.mockImplementation((q, cb) =>
+      cb([{ id: 2, url: "https://leetcode.com/problems/other" }])
+    );
+    const msgHandler = chrome._listeners.message[0];
+    msgHandler({ type: "toggle", enabled: true }, {}, jest.fn());
+
+    // Advance timers — onUpdated's retry should still succeed
+    await jest.advanceTimersByTimeAsync(5000);
+
+    // Both the onUpdated retry and the toggle should have called executeScript
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(3); // 1 fail + 1 retry success (onUpdated) + 1 toggle
+  });
+});
+
+// ─── Fix: retry attempts before delay (not delay-first) ──────
+
+describe("BUG FIX: retry attempts before delay", () => {
+  test("applyWithRetry calls executeScript immediately without delay", async () => {
+    loadBackground();
+    chrome._storageData.enabled = true;
+    chrome.scripting.executeScript.mockResolvedValue([
+      { result: { success: false } },
+    ]);
+
+    const handler = chrome._listeners.tabsUpdated[0];
+    handler(1, { status: "complete" }, { url: "https://leetcode.com/problems/test" });
+
+    // With attempt-first ordering, executeScript is called immediately
+    // (no 500ms delay before first try)
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(1);
+  });
+
+  test("delay occurs between failed attempts, not before first", async () => {
+    loadBackground();
+    chrome._storageData.enabled = true;
+    chrome.scripting.executeScript.mockResolvedValue([
+      { result: { success: false } },
+    ]);
+
+    const handler = chrome._listeners.tabsUpdated[0];
+    handler(1, { status: "complete" }, { url: "https://leetcode.com/problems/test" });
+
+    // 1st attempt: immediate
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(1);
+
+    // Wait 200ms — not yet enough for retry delay (500ms)
+    await jest.advanceTimersByTimeAsync(200);
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(1);
+
+    // Wait past the first delay (500ms total)
+    await jest.advanceTimersByTimeAsync(400);
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(2);
+
+    // Wait past the second delay (~750ms after 2nd attempt)
+    await jest.advanceTimersByTimeAsync(800);
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(3);
+  });
+
+  test("succeeds on first attempt with zero wasted time", async () => {
+    loadBackground();
+    chrome._storageData.enabled = true;
+    chrome.scripting.executeScript.mockResolvedValue([
+      { result: { success: true, editorCount: 1 } },
+    ]);
+
+    const handler = chrome._listeners.tabsUpdated[0];
+    handler(1, { status: "complete" }, { url: "https://leetcode.com/problems/test" });
+
+    // Should succeed immediately — no timer needed
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(1);
+
+    // Advance a long time — no additional calls
+    await jest.advanceTimersByTimeAsync(40000);
+    expect(chrome.scripting.executeScript).toHaveBeenCalledTimes(1);
+  });
+});
