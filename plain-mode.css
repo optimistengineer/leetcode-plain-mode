@@ -28,6 +28,29 @@
   width: 2px !important;
 }
 
+/* Hide cursor when text is selected — prevents the vertical bar
+   artifact visible at the left edge during backward (right-to-left) selection.
+   The native browser caret renders on the .monaco-editor container itself
+   and its focused .inputarea textarea, so we suppress it everywhere.
+   Using opacity: 0 on .inputarea is the most robust fix. */
+.leetcode-plain-active .monaco-editor,
+.leetcode-plain-active .monaco-editor * {
+  caret-color: transparent !important;
+}
+
+.leetcode-plain-active .monaco-editor .cursors-layer.has-selection .cursor {
+  display: none !important;
+}
+
+.leetcode-plain-active .monaco-editor .inputarea {
+  opacity: 0 !important;
+  caret-color: transparent !important;
+  /* Ultimate Scorched Earth: Force the textarea off-screen to banish native carets */
+  position: absolute !important;
+  left: -9999px !important;
+  top: -9999px !important;
+}
+
 .leetcode-plain-active .monaco-editor .selected-text {
   background-color: #d2e3fc !important;
 }

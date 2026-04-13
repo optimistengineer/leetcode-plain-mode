@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "LeetCode Plain Mode",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Practice LeetCode in a Google-style interview environment — plain editor, no autocomplete, no highlighting",
   "permissions": ["storage", "scripting", "activeTab"],
   "host_permissions": ["https://leetcode.com/*"],
