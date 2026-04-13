@@ -92,6 +92,10 @@
   left: 0 !important;
   padding-left: 24px !important;
 }
+.leetcode-plain-active .monaco-editor .cursors-layer {
+  left: 0 !important;
+  padding-left: 24px !important;
+}
 .leetcode-plain-active .monaco-editor .monaco-scrollable-element {
   left: 0 !important;
 }

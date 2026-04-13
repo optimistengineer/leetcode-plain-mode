@@ -89,6 +89,15 @@ describe("Extension loads on LeetCode", () => {
     expect(padding).toBe("24px");
   });
 
+  test("cursors-layer has 24px left padding", async () => {
+    const padding = await getComputedProp(
+      page,
+      ".monaco-editor .cursors-layer",
+      "paddingLeft"
+    );
+    expect(padding).toBe("24px");
+  });
+
   test("view-overlays has left: 0", async () => {
     const left = await page.evaluate(() => {
       const el = document.querySelector(".monaco-editor .view-overlays");

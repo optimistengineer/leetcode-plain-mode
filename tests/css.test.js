@@ -141,6 +141,10 @@ describe("plain-mode.css", () => {
     expect(css).toMatch(/\.view-overlays[\s\S]*?padding-left:\s*24px\s*!important/);
   });
 
+  test("adds left padding to cursors layer", () => {
+    expect(css).toMatch(/\.cursors-layer[\s\S]*?padding-left:\s*24px\s*!important/);
+  });
+
   test("hides margin completely", () => {
     expect(css).toMatch(/\.margin[\s\S]*?width:\s*0\s*!important/);
   });
